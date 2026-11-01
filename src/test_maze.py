@@ -9,7 +9,7 @@ def display_maze(maze: list[list[int]]) -> None:
 generator = MazeGenerator(
     size=(15, 15), 
     perfect=False,
-    seed=12
+    seed=False
 )
 
 # print("Maze:")

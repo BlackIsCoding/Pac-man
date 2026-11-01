@@ -41,6 +41,12 @@ class Parser():
             return self.default_conf
         return nodups_string
 
+    def strip_keys(self, content):
+        new = {}
+        for c in content:
+            new[c.strip()] = content[c]
+        return new
+
     def read_config(self):
         try:
             content = self.handle_comments()
@@ -50,9 +56,9 @@ class Parser():
             return self.default_conf
         if not isinstance(content, dict):
             print(
-                "warning: config_file content is not supported as a list format, falling back to defaults values")
+                "warning: config_file content is not supported in a format other than dictionary, falling back to defaults values")
             return self.default_conf
-        return content
+        return self.strip_keys(content)
 
     def validate_key(self, k, config_content_or, default_config_or):
         default_config = default_config_or

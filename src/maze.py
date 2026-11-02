@@ -2,7 +2,7 @@
 import pygame
 import sys
 import math
-
+from collections import deque
 # -------------------- Configuration --------------------
 
 TILE_SIZE = 32
@@ -234,8 +234,60 @@ class Maze:
         self.draw_walls(screen)
         self.draw_gums(screen)
 
+    def bfs(self, start, target):
+        """Find the shortest path between two cells using BFS."""
 
-# -------------------- Main --------------------
+        queue = deque([start])
+        visited = {start: None}
+
+        directions = [
+            (NORTH, "n"),
+            (EAST, "e"),
+            (SOUTH, "s"),
+            (WEST, "w")
+        ]
+
+        while queue:
+
+            current = queue.popleft()
+
+            if current == target:
+                break
+
+            row, col = current
+
+            for direction, letter in directions:
+
+                if self.can_move(row, col, direction):
+
+                    if direction == NORTH:
+                        neighbor = (row - 1, col)
+                    elif direction == EAST:
+                        neighbor = (row, col + 1)
+                    elif direction == SOUTH:
+                        neighbor = (row + 1, col)
+                    else:
+                        neighbor = (row, col - 1)
+
+                    if neighbor not in visited:
+                        visited[neighbor] = (current, letter)
+                        queue.append(neighbor)
+
+        # Target was unreachable.
+        if target not in visited:
+            return None
+
+        # Reconstruct the path.
+        path = []
+        current = target
+
+        while current != start:
+            previous, direction = visited[current]
+            path.append(direction)
+            current = previous
+
+        return "".join(reversed(path))
+    # -------------------- Main --------------------
 
 def main():
     pygame.init()

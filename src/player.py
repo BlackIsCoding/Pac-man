@@ -1,6 +1,7 @@
 from maze import Maze, MAZE_GRID, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR, TILE_SIZE, HUD_HEIGHT, NORTH, WEST, SOUTH, EAST
 import pygame
 import sys
+from ghost import Ghost, get_maze_corners
 
 maze = Maze(MAZE_GRID)
 pacman_row, pacman_col = maze.get_center()
@@ -17,9 +18,14 @@ for color in colors:
     string = f"../assets/ghost_{color}.png"
     ghosts[color] = pygame.image.load(string)
     ghosts[color] = pygame.transform.smoothscale(ghosts[color], (24,24))
+red_ghost = Ghost(get_maze_corners((maze.rows, maze.cols))[0], ghosts['red'], 200, "red", maze, maze.get_center())
+blue_ghost = Ghost(get_maze_corners((maze.rows, maze.cols))[1], ghosts['blue'], 200, "blue", maze, maze.get_center())
+yellow_ghost = Ghost(get_maze_corners((maze.rows, maze.cols))[2], ghosts['yellow'], 200, "yellow",maze, maze.get_center())
+pink_ghost = Ghost(get_maze_corners((maze.rows, maze.cols))[3], ghosts['pink'], 200, "pink", maze, maze.get_center())
+ghosts_chars = [red_ghost, blue_ghost, yellow_ghost, pink_ghost]
 
 
-
+collision = False
 image_rect = open_pac_right.get_rect()
 directions = [open_pac_right]
 anime  = [closed_pac, open_pac_right]
@@ -38,6 +44,13 @@ maximum_y = screen_height - pac_height
 
 last_move_time = 0
 move_delay = 200
+
+ghost_last_move = 0
+ghost_move_delay = 600
+
+
+ghost_last_intelligence = 0
+ghost_intelligence_delay = 500
 
 def get_spawn_position(maze, image):
     row, col = maze.get_center()
@@ -63,18 +76,19 @@ pygame.display.set_caption("Pac-Man - Development")
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 30)
 
-maze = Maze(MAZE_GRID)
+red_ghost.intelligence(maze.get_center())
+print(red_ghost.path)
 
 running = True
 
 while running:
+    if collision:
+        print("you lost")
+        sys.exit(1)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit(1)
-        # elif event.type == pygame.MOUSEBUTTONDOWN:
-        #     if image_rect.collidepoint(event.pos):
-        #         print("open_pac_right image clicked!")
         elif event.type == pygame.KEYDOWN:
             key_hit = 1
             if event.key == pygame.K_RIGHT:
@@ -135,6 +149,9 @@ while running:
     if not maze.gums and not maze.super_gums:
         print("congrats, you finished the game !")
         sys.exit(1)
+    for ghost in ghosts_chars:
+        if ghost.grid_position == (pacman_row, pacman_col):
+            collision = True
 
     screen.fill(BACKGROUND_COLOR)
 
@@ -143,12 +160,30 @@ while running:
 
     maze.draw(screen)
 
+    current_time = pygame.time.get_ticks()
+
+    if current_time - ghost_last_intelligence >= ghost_intelligence_delay:
+        red_ghost.intelligence((pacman_row, pacman_col))
+        ghost_last_intelligence = current_time
+
+
+    current_time = pygame.time.get_ticks()
+
+    if current_time - ghost_last_move >= ghost_move_delay:
+        red_ghost.move()
+        ghost_last_move = current_time
+
+
+    red_ghost.display_ghost(screen)
+    blue_ghost.display_ghost(screen)
+    yellow_ghost.display_ghost(screen)
+    pink_ghost.display_ghost(screen)
+
     if count > 50:
         count = 0
         i += 1
         
     screen.blit(anime[i % len(anime)], (x, y))
-    screen.blit(ghosts['red'], (0,0))
     count += 1
     pygame.display.flip()
 

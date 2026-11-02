@@ -10,6 +10,16 @@ screen = pygame.display.set_mode(
 )
 open_pac_right = pygame.image.load("../assets/pac_man_open_right.png")
 closed_pac = pygame.image.load("../assets/pac_man_close.png")
+
+colors = ["pink", "red", "yellow", "blue"]
+ghosts = {}
+for color in colors:
+    string = f"../assets/ghost_{color}.png"
+    ghosts[color] = pygame.image.load(string)
+    ghosts[color] = pygame.transform.smoothscale(ghosts[color], (24,24))
+
+
+
 image_rect = open_pac_right.get_rect()
 directions = [open_pac_right]
 anime  = [closed_pac, open_pac_right]
@@ -113,6 +123,18 @@ while running:
             last_move_time = current_time
     x = pacman_col * TILE_SIZE + TILE_SIZE // 2 - pac_width // 2
     y = pacman_row * TILE_SIZE + TILE_SIZE // 2 + HUD_HEIGHT - pac_height // 2
+    
+    for gum in maze.gums[:]:
+        if (pacman_row, pacman_col) == (gum.row, gum.col):
+            maze.gums.remove(gum)
+            print("+50")
+    for gum in maze.super_gums[:]:
+        if (pacman_row, pacman_col) == (gum.row, gum.col):
+            maze.super_gums.remove(gum)
+            print("+200")
+    if not maze.gums and not maze.super_gums:
+        print("congrats, you finished the game !")
+        sys.exit(1)
 
     screen.fill(BACKGROUND_COLOR)
 
@@ -126,6 +148,7 @@ while running:
         i += 1
         
     screen.blit(anime[i % len(anime)], (x, y))
+    screen.blit(ghosts['red'], (0,0))
     count += 1
     pygame.display.flip()
 

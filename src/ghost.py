@@ -34,8 +34,7 @@ class Ghost():
 
     def move(self):
         if not self.path:
-            print("empty")
-            sys.exit(1)
+            return
         y, x = self.grid_position
         if self.path[0] == "s":
             y += 1

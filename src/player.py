@@ -2,6 +2,7 @@ from maze import Maze, MAZE_GRID, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR,
 import pygame
 import sys
 from ghost import Ghost, get_maze_corners
+import random
 
 maze = Maze(MAZE_GRID)
 pacman_row, pacman_col = maze.get_center()
@@ -76,7 +77,24 @@ pygame.display.set_caption("Pac-Man - Development")
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 30)
 
-red_ghost.intelligence(maze.get_center())
+center = maze.get_center()
+red_ghost.intelligence(center)
+center_four = maze.get_center()
+center_four = (center_four[0] + 4, center_four[1])
+target = center_four
+pink_ghost.intelligence(target)
+
+grid_index = [i for i in range(15)]
+yellow_rows = random.choice(grid_index)
+yellow_cols = random.choice(grid_index)
+target_yellow = (yellow_rows, yellow_cols)
+yellow_ghost.intelligence(target_yellow)
+
+
+blue_rows = random.choice(grid_index)
+blue_cols = random.choice(grid_index)
+target_blue = (blue_rows, blue_cols)
+blue_ghost.intelligence(target_blue)
 print(red_ghost.path)
 
 running = True
@@ -164,6 +182,25 @@ while running:
 
     if current_time - ghost_last_intelligence >= ghost_intelligence_delay:
         red_ghost.intelligence((pacman_row, pacman_col))
+        if last_direction == NORTH:
+            target = (pacman_row - 4, pacman_col)
+        elif last_direction == SOUTH:
+            target = (pacman_row + 4, pacman_col)
+        elif last_direction == EAST:
+            target = (pacman_row, pacman_col + 4)
+        elif last_direction == WEST:
+            target = (pacman_row, pacman_col - 4)
+        target_row = max(0, min(target[0], maze.rows - 1))
+        target_col = max(0, min(target[1], maze.cols - 1))
+        pink_ghost.intelligence((target_row, target_col))
+        yellow_rows = random.choice(grid_index)
+        yellow_cols = random.choice(grid_index)
+        target_yellow = (yellow_rows, yellow_cols)
+        yellow_ghost.intelligence(target_yellow)
+        blue_rows = random.choice(grid_index)
+        blue_cols = random.choice(grid_index)
+        target_blue = (blue_rows, blue_cols)
+        blue_ghost.intelligence(target_blue)
         ghost_last_intelligence = current_time
 
 
@@ -171,6 +208,9 @@ while running:
 
     if current_time - ghost_last_move >= ghost_move_delay:
         red_ghost.move()
+        pink_ghost.move()
+        yellow_ghost.move()
+        blue_ghost.move()
         ghost_last_move = current_time
 
 

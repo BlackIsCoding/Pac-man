@@ -2,21 +2,27 @@ import pygame
 import sys
 from maze import Maze, MAZE_GRID
 
-def get_maze_corners(maze_size):
-    rows , cols = maze_size
-    return ([(0,0), (cols - 1, 0), (0, rows - 1), (cols - 1, rows - 1)])
+
 
 class Ghost():
-    def __init__(self, position, image, speed, color, maze, pacman_lastpos):
+    def __init__(self, position, image, speed, color, maze):
         self.png = image
-        self.grid_position = position
         self.speed = speed
         self.color = color
+        
+        self.grid_position = position
         self.maze = maze
-        self.pac_last_pos = pacman_lastpos
+        self.respawn = position
+        
+        self.ghost_last_move = 0
+        self.ghost_move_delay = 600
+        self.ghost_last_intelligence = 0
+        self.ghost_intelligence_delay = 500
+
+    
 
     def get_pixel_coordinates(self, x, y):
-        from player import TILE_SIZE, HUD_HEIGHT
+        from maze import TILE_SIZE, HUD_HEIGHT
         x = x * TILE_SIZE + TILE_SIZE // 2
         y = y * TILE_SIZE + TILE_SIZE // 2 + HUD_HEIGHT
         return (x, y)
@@ -44,6 +50,5 @@ class Ghost():
             x -= 1
         elif self.path[0] == 'e':
             x += 1
-        print("Before:", self.grid_position, "Direction:", self.path[0])
         self.path = self.path[1:]
         self.grid_position = (y, x)
